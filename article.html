@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vastavikta - Article</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo"><span>Vastavikta</span></a>
+            <div class="nav-links">
+                <a href="national.html" class="nav-link">National News</a>
+                <a href="international.html" class="nav-link">International News</a>
+                <a href="magazines.html" class="nav-link">Magazines</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-button"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="article-detail">
+        <div class="container">
+            <div id="article-content">
+                <!-- Article will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3 class="footer-title"><span>Vastavikta</span></h3>
+                    <p class="footer-text">Vatavikta के साथ जागो ।</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-x"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-medium"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4 class="links-title">Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#videos">Videos</a></li>
+                        <li><a href="#articles">Articles</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4 class="links-title">Get In Touch</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> vastaviktaindia@gmail.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Guwahati, Assam</li>
+                        <li class="footer-links"><i class="fas fa-laptop"></i> Developed By <a href="#"><span>Krishnayan</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Vastavikta. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!--scripts-->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script>
+      // Initialize Firebase with your config
+      const firebaseConfig = {
+        apiKey: "AIzaSyDASxEfx3bAlOCt-2qqhnb10EucniGS6Tk",
+        authDomain: "vastavikta-article-db.firebaseapp.com",
+        projectId: "vastavikta-article-db",
+        storageBucket: "vastavikta-article-db.firebasestorage.app",
+        messagingSenderId: "792686025515",
+        appId: "1:792686025515:web:acb55f64fb21472153836e"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/article.js"></script>
+</body>
+</html>

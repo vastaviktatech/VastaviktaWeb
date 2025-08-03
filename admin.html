@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vastavikta - Admin Panel</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include Quill editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-container">
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo"><span>Vastavikta</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="admin.html" class="nav-link">Admin Panel</a>
+                <div id="auth-status" style="display: none;">
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form (visible by default) -->
+    <div id="auth-container" class="auth-container">
+        <div class="login-wrapper">
+            <div class="login-form">
+                <h2>Admin Login</h2>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter admin email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+                <button id="login-btn" class="btn btn-primary">Login</button>
+                <div id="login-status" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+    <!--Spacing-->
+    <br>
+    <br>
+    <!-- Admin Panel (hidden until login) -->
+    <div id="admin-panel" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Publish <span>New Article</span></h2>
+            
+            <div class="article-form">
+                <div class="form-group">
+                    <label for="article-title">Title</label>
+                    <input type="text" id="article-title" placeholder="Enter article title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-category">Category</label>
+                    <select id="article-category">
+                        <option value="National News">National News</option>
+                        <option value="International News">International News</option>
+                        <option value="Opinion">Opinion</option>
+                        <option value="Analysis">Analysis</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-image">Image URL (Google Drive)</label>
+                    <input type="text" id="article-image" placeholder="Paste Google Drive image link">
+                    <small>Make sure the image is shared publicly</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Article Content</label>
+                    <div id="editor" style="height: 400px;"></div>
+                </div>
+                
+                <button id="publish-article" class="btn btn-primary">Publish Article</button>
+                <div id="status-message" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDASxEfx3bAlOCt-2qqhnb10EucniGS6Tk",
+        authDomain: "vastavikta-article-db.firebaseapp.com",
+        projectId: "vastavikta-article-db",
+        storageBucket: "vastavikta-article-db.firebasestorage.app",
+        messagingSenderId: "792686025515",
+        appId: "1:792686025515:web:acb55f64fb21472153836e"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>
