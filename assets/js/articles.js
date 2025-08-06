@@ -1,107 +1,164 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if Firebase is initialized
-    if (!firebase.apps.length) {
-        console.error("Firebase not initialized!");
-        return;
-    }
+    console.log("articles.js loaded - starting execution");
     
-    const db = firebase.firestore();
+    try {
+        if (!firebase || !firebase.apps.length) {
+            throw new Error('Firebase not initialized!');
+        }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const db = firebase.firestore();
-    let currentPage = 1;
-    const articlesPerPage = 6;
-    let lastVisible = null;
-    let hasMore = true;
-    
-    const allArticlesContainer = document.getElementById('all-articles-container');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const pageInfo = document.getElementById('page-info');
-    
-    // Load first page
-    loadPage(currentPage);
-    
-    // Pagination controls
-    prevPageBtn.addEventListener('click', function() {
-        if (currentPage > 1) {
-            currentPage--;
-            loadPage(currentPage);
-        }
-    });
-    
-    nextPageBtn.addEventListener('click', function() {
-        if (hasMore) {
-            currentPage++;
-            loadPage(currentPage);
-        }
-    });
-    
-    function loadPage(page) {
-        allArticlesContainer.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading articles...</div>';
+        const db = firebase.firestore();
+        console.log("Firestore initialized successfully");
+
+        let currentPage = 1;
+        const articlesPerPage = 6;
+        let allArticles = [];
+        let hasMore = true;
         
-        let articlesQuery = db.collection('articles')
-                            .where('published', '==', true)
-                            .orderBy('publishedDate', 'desc')
-                            .limit(articlesPerPage);
+        const elements = {
+            container: document.getElementById('all-articles-container'),
+            prevBtn: document.getElementById('prev-page'),
+            nextBtn: document.getElementById('next-page'),
+            pageInfo: document.getElementById('page-info')
+        };
+
+        // Initial load
+        loadAllArticles();
         
-        if (page > 1 && lastVisible) {
-            articlesQuery = articlesQuery.startAfter(lastVisible);
-        }
+        // Event listeners
+        elements.prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage();
+            }
+        });
         
-        articlesQuery.get().then((querySnapshot) => {
-            allArticlesContainer.innerHTML = '';
+        elements.nextBtn.addEventListener('click', () => {
+            if (hasMore) {
+                currentPage++;
+                renderPage();
+            }
+        });
+
+        async function loadAllArticles() {
+            showLoadingState();
             
-            if (querySnapshot.empty) {
-                if (page === 1) {
-                    allArticlesContainer.innerHTML = '<p>No articles found.</p>';
-                } else {
-                    allArticlesContainer.innerHTML = '<p>No more articles to show.</p>';
-                    hasMore = false;
+            try {
+                const querySnapshot = await db.collection('articles')
+                    .where('published', '==', true)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                allArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                console.log(`Found ${allArticles.length} articles`);
+                
+                if (allArticles.length === 0) {
+                    handleEmptyResults(1);
+                    return;
                 }
+                
+                renderPage();
+                
+            } catch (error) {
+                handleQueryError(error);
+            }
+        }
+        
+        function renderPage() {
+            const startIdx = (currentPage - 1) * articlesPerPage;
+            const endIdx = startIdx + articlesPerPage;
+            const pageArticles = allArticles.slice(startIdx, endIdx);
+            
+            displayArticles(pageArticles);
+            updatePaginationState();
+        }
+        
+        function showLoadingState() {
+            elements.container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i> Loading articles...
+                </div>
+            `;
+        }
+        
+        function displayArticles(articles) {
+            elements.container.innerHTML = '';
+            
+            if (articles.length === 0) {
+                handleEmptyResults(currentPage);
                 return;
             }
             
-            querySnapshot.forEach((doc) => {
-                const article = doc.data();
-                const articleId = doc.id;
-                
-                const articleCard = document.createElement('div');
-                articleCard.className = 'article-card';
-                articleCard.innerHTML = `
-                    <div class="article-image">
-                        <img src="${article.imageUrl || 'assets/images/default-article.jpg'}" alt="${article.title}">
-                    </div>
-                    <div class="article-content">
-                        <span class="article-category">${article.category || 'General'}</span>
-                        <h3 class="article-title">${article.title}</h3>
-                        <p class="article-excerpt">${article.excerpt || ''}</p>
-                        <div class="article-meta">
-                            <span><i class="fas fa-clock"></i> ${getReadTime(article.content)} min read</span>
-                            <a href="article.html?id=${articleId}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                `;
-                
-                allArticlesContainer.appendChild(articleCard);
+            articles.forEach(article => {
+                console.log("Displaying article:", article.title);
+                elements.container.appendChild(createArticleCard(article));
             });
+        }
+        
+        function createArticleCard(article) {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+            card.innerHTML = `
+                <div class="article-image">
+                    <img src="${article.imageUrl || 'assets/images/placeholder.jpg'}" 
+                         alt="${article.title}">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">${article.category || 'General'}</span>
+                    <h3 class="article-title">${article.title}</h3>
+                    <p class="article-excerpt">${article.excerpt || ''}</p>
+                    <div class="article-meta">
+                        <span><i class="fas fa-clock"></i> ${getReadTime(article.content)} min read</span>
+                        <a href="article.html?id=${article.id}" class="read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+        
+        function updatePaginationState() {
+            const totalPages = Math.ceil(allArticles.length / articlesPerPage);
+            hasMore = currentPage < totalPages;
             
-            // Update pagination state
-            lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-            hasMore = querySnapshot.docs.length === articlesPerPage;
-            
-            prevPageBtn.disabled = page === 1;
-            nextPageBtn.disabled = !hasMore;
-            pageInfo.textContent = `Page ${page}`;
-        }).catch((error) => {
-            console.error("Error getting articles: ", error);
-            allArticlesContainer.innerHTML = '<p>Error loading articles. Please try again later.</p>';
-        });
-    }
-    
-    function getReadTime(content) {
-        // Simple read time calculation (200 words per minute)
-        const wordCount = content.split(/\s+/).length;
-        return Math.ceil(wordCount / 200);
+            elements.prevBtn.disabled = currentPage === 1;
+            elements.nextBtn.disabled = !hasMore;
+            elements.pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+        
+        function handleEmptyResults(page) {
+            elements.container.innerHTML = page === 1 
+                ? '<p>No articles found.</p>' 
+                : '<p>No more articles to show.</p>';
+            hasMore = false;
+        }
+        
+        function handleQueryError(error) {
+            console.error("Error loading articles:", error);
+            elements.container.innerHTML = `
+                <div class="error-message">
+                    Error loading articles: ${error.message}
+                </div>
+            `;
+        }
+        
+        function getReadTime(content) {
+            if (!content) return 0;
+            const wordCount = content.split(/\s+/).length;
+            return Math.ceil(wordCount / 200);
+        }
+
+    } catch (initError) {
+        console.error("Initialization failed:", initError);
+        const container = document.getElementById('all-articles-container') || document.body;
+        container.innerHTML = `
+            <div class="error-message">
+                System initialization failed: ${initError.message}
+            </div>
+        `;
     }
 });
