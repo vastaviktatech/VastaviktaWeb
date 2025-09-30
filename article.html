@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMGMVJDJ70"></script>
@@ -7,12 +7,41 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-DMGMVJDJ70');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vastavikta - Article</title>
+    
+    <!-- Dynamic Meta Tags -->
+    <meta property="og:url" id="og-url" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:title" id="og-title" content="Vastavikta - Article">
+    <meta property="og:description" id="og-description" content="Read this article on Vastavikta">
+    <meta property="og:image" id="og-image" content="">
+    <meta property="og:site_name" content="Vastavikta">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Vastavikta">
+    <meta name="twitter:creator" content="@Vastavikta">
+    <meta name="twitter:title" id="twitter-title" content="Vastavikta - Article">
+    <meta name="twitter:description" id="twitter-description" content="Read this article on Vastavikta">
+    <meta name="twitter:image" id="twitter-image" content="">
+    <meta name="twitter:image:alt" id="twitter-image-alt" content="Vastavikta Article">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="description" id="meta-description" content="Read this article on Vastavikta">
+    <meta name="author" content="Vastavikta">
+    <meta name="keywords" id="meta-keywords" content="news, article, vastavikta">
+    
+    <!-- Article Specific Meta Tags -->
+    <meta property="article:published_time" id="article-published" content="">
+    <meta property="article:modified_time" id="article-modified" content="">
+    <meta property="article:author" content="Vastavikta">
+    <meta property="article:section" id="article-section" content="News">
+    
+    <title id="page-title">Vastavikta - Article</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -45,6 +74,38 @@
         <div class="container">
             <div id="article-content">
                 <!-- Article will be loaded here by JavaScript -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading article...</p>
+                </div>
+            </div>
+            
+            <!-- Social Sharing Section -->
+            <div class="social-share" id="social-share" style="display: none;">
+                <span>Share this article:</span>
+                <button class="share-btn whatsapp" onclick="shareOnWhatsApp()">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
+                <button class="share-btn facebook" onclick="shareOnFacebook()">
+                    <i class="fab fa-facebook"></i>
+                </button>
+                <button class="share-btn twitter" onclick="shareOnTwitter()">
+                    <i class="fab fa-x-twitter"></i>
+                </button>
+                <button class="share-btn linkedin" onclick="shareOnLinkedIn()">
+                    <i class="fab fa-linkedin"></i>
+                </button>
+                <button class="share-btn copy-link" onclick="copyArticleLink()">
+                    <i class="fas fa-link"></i>
+                </button>
+            </div>
+            
+            <!-- Related Articles -->
+            <div class="related-articles" id="related-articles" style="display: none;">
+                <h3>Related Articles</h3>
+                <div class="article-grid" id="related-articles-container">
+                    <!-- Related articles will be loaded here -->
+                </div>
             </div>
         </div>
     </section>
@@ -58,7 +119,7 @@
                     <p class="footer-text">Vastavikta के साथ जागो ।</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-youtube"></i></a>
-                        <a href="#"><i class="fab fa-x"></i></a>
+                        <a href="#"><i class="fab fa-x-twitter"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
                         <a href="#"><i class="fab fa-linkedin"></i></a>
                         <a href="#"><i class="fab fa-medium"></i></a>
@@ -68,10 +129,10 @@
                 <div class="footer-links">
                     <h4 class="links-title">Quick Links</h4>
                     <ul>
-                        <li><a href="index.html#home">Home</a></li>
+                        <li><a href="index.html">Home</a></li>
                         <li><a href="index.html#videos">Videos</a></li>
                         <li><a href="index.html#articles">Articles</a></li>
-                        <li><a href="index.html#contact">Contact</a></li>
+                        <li><a href="#contact">Contact</a></li>
                         <li><a href="#">Privacy Policy</a></li>
                     </ul>
                 </div>
@@ -81,7 +142,7 @@
                     <ul>
                         <li><i class="fas fa-envelope"></i> vastaviktaindia@gmail.com</li>
                         <li><i class="fas fa-map-marker-alt"></i> Guwahati, Assam</li>
-                        <li class="footer-links"><i class="fas fa-laptop"></i> Developed By <a href="https://krishnayanhyperdevs.xo.je" target="blank__"><span>Krishnayan</span></a></li>
+                        <li class="footer-links"><i class="fas fa-laptop"></i> Developed By <a href="#"><span>Krishnayan</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -92,9 +153,10 @@
         </div>
     </footer>
 
-    <!--scripts-->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    
     <script>
       // Initialize Firebase with your config
       const firebaseConfig = {
@@ -105,12 +167,15 @@
         messagingSenderId: "792686025515",
         appId: "1:792686025515:web:acb55f64fb21472153836e"
       };
-      firebase.initializeApp(firebaseConfig);
+      
+      // Initialize Firebase only if not already initialized
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+      }
       const db = firebase.firestore();
     </script>
+    
     <script src="assets/js/script.js"></script>
     <script src="assets/js/article.js"></script>
 </body>
-
 </html>
-
