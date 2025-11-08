@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMGMVJDJ70"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-DMGMVJDJ70');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vastavikta - Update Articles</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include Quill editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-container">
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo"><span>Vastavikta</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="admin.html" class="nav-link">Admin Panel</a>
+                <a href="update.html" class="nav-link active">Update Articles</a>
+                <div id="auth-status" style="display: none;">
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form (visible by default) -->
+    <div id="auth-container" class="auth-container">
+        <div class="login-wrapper">
+            <div class="login-form">
+                <h2>Admin Login</h2>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter admin email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+                <button id="login-btn" class="btn btn-primary">Login</button>
+                <div id="login-status" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Panel (hidden until login) -->
+    <div id="update-panel" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Update <span>Articles</span></h2>
+            
+            <!-- Recent Articles Section -->
+            <div class="recent-articles-section">
+                <h3>Recent Articles</h3>
+                <div class="recent-articles-grid" id="recent-articles-grid">
+                    <!-- Recent articles will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Article Selection Section -->
+            <div class="article-selection">
+                <div class="form-group">
+                    <label for="article-select">Or Select Article to Update</label>
+                    <select id="article-select">
+                        <option value="">Loading articles...</option>
+                    </select>
+                </div>
+                
+                <div class="article-preview" id="article-preview" style="display: none;">
+                    <div class="preview-card">
+                        <div class="preview-image">
+                            <img id="preview-img" src="" alt="Article thumbnail">
+                        </div>
+                        <div class="preview-content">
+                            <h3 id="preview-title"></h3>
+                            <p id="preview-excerpt"></p>
+                            <div class="preview-meta">
+                                <span id="preview-category"></span>
+                                <span id="preview-date"></span>
+                                <span id="preview-views"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Form Section -->
+            <div class="update-form" id="update-form" style="display: none;">
+                <div class="article-form">
+                    <h3>Edit Article</h3>
+                    
+                    <div class="form-group">
+                        <label for="update-title">Title</label>
+                        <input type="text" id="update-title" placeholder="Enter article title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="update-category">Category</label>
+                        <select id="update-category">
+                            <option value="National News">National News</option>
+                            <option value="International News">International News</option>
+                            <option value="Opinion">Opinion</option>
+                            <option value="Analysis">Analysis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="update-image">Image URL (Google Drive)</label>
+                        <input type="text" id="update-image" placeholder="Paste Google Drive image link">
+                        <small>Make sure the image is shared publicly. Leave empty to keep current image.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Article Content</label>
+                        <div id="update-editor" style="height: 400px;"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="update-article" class="btn btn-primary">Update Article</button>
+                        <button id="delete-article" class="btn btn-secondary" style="background-color: #dc3545; color: white;">Delete Article</button>
+                        <button id="cancel-update" class="btn btn-secondary">Cancel</button>
+                    </div>
+                    <div id="update-status" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDASxEfx3bAlOCt-2qqhnb10EucniGS6Tk",
+        authDomain: "vastavikta-article-db.firebaseapp.com",
+        projectId: "vastavikta-article-db",
+        storageBucket: "vastavikta-article-db.firebasestorage.app",
+        messagingSenderId: "792686025515",
+        appId: "1:792686025515:web:acb55f64fb21472153836e"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/update.js"></script>
+</body>
+</html>
