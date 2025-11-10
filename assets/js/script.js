@@ -92,109 +92,252 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Search functionality
-    const searchButton = document.querySelector('.search-button');
-    const searchInput = document.querySelector('.search-input');
+// Search functionality - 10-11-25
+const searchButton = document.querySelector('.search-button');
+const searchInput = document.querySelector('.search-input');
 
-    if (searchButton && searchInput) {
-        // Click handler for search button
-        searchButton.addEventListener('click', function() {
+if (searchButton && searchInput) {
+    // Click handler for search button
+    searchButton.addEventListener('click', function() {
+        performSearch();
+    });
+    
+    // Enter key handler for search input
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
             performSearch();
-        });
-        
-        // Enter key handler for search input
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-        
-        function performSearch() {
-            const searchTerm = searchInput.value.trim();
-            if (searchTerm !== '') {
-                // Remove previous highlights if any
-                removeHighlights();
-                
-                // Highlight all matches on the page
-                highlightMatches(searchTerm);
-                
+        }
+    });
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm !== '' && searchTerm.length >= 2) {
+            // Remove previous highlights if any
+            removeHighlights();
+            
+            // Highlight all matches on the page
+            const matchesFound = highlightMatches(searchTerm);
+            
+            if (matchesFound) {
                 // Scroll to first match
                 scrollToFirstMatch(searchTerm);
+                showSearchFeedback(`${matchesFound} matches found for "${searchTerm}"`);
             } else {
-                removeHighlights();
+                showSearchFeedback(`No matches found for "${searchTerm}"`, true);
             }
-        }
-        
-        function highlightMatches(searchTerm) {
-            // Only search within these elements to avoid affecting layout
-            const searchableElements = document.querySelectorAll(
-                'p, h1, h2, h3, h4, h5, h6, li, span:not(.search-highlight):not(.first-match), a, .article-title, .article-excerpt, .video-title, .video-desc'
-            );
-            
-            searchableElements.forEach(element => {
-                const originalHTML = element.innerHTML;
-                const regex = new RegExp(searchTerm, 'gi');
-                
-                // Only process elements that actually contain the search term
-                if (regex.test(element.textContent)) {
-                    const highlightedHTML = originalHTML.replace(
-                        regex,
-                        match => `<span class="search-highlight">${match}</span>`
-                    );
-                    element.innerHTML = highlightedHTML;
-                }
-            });
-        }
-        
-        function removeHighlights() {
-            const highlights = document.querySelectorAll('.search-highlight, .first-match');
-            highlights.forEach(highlight => {
-                const parent = highlight.parentNode;
-                if (parent) {
-                    parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
-                    parent.normalize();
-                }
-            });
-        }
-        
-        function scrollToFirstMatch(searchTerm) {
-            const searchableElements = document.querySelectorAll(
-                'p, h1, h2, h3, h4, h5, h6, li, span:not(.search-highlight):not(.first-match), a, .article-title, .article-excerpt, .video-title, .video-desc'
-            );
-            
-            for (let element of searchableElements) {
-                if (element.textContent.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    // Scroll to the element
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Highlight just this instance temporarily
-                    const originalHTML = element.innerHTML;
-                    const regex = new RegExp(searchTerm, 'gi');
-                    element.innerHTML = originalHTML.replace(
-                        regex,
-                        match => `<span class="first-match">${match}</span>`
-                    );
-                    
-                    // Remove temporary highlight after 2 seconds
-                    setTimeout(() => {
-                        const firstMatches = element.querySelectorAll('.first-match');
-                        firstMatches.forEach(match => {
-                            const parent = match.parentNode;
-                            if (parent) {
-                                parent.replaceChild(document.createTextNode(match.textContent), match);
-                                parent.normalize();
-                            }
-                        });
-                        
-                        // Re-apply permanent highlights
-                        highlightMatches(searchTerm);
-                    }, 2000);
-                    
-                    break;
-                }
-            }
+        } else if (searchTerm.length < 2 && searchTerm.length > 0) {
+            showSearchFeedback('Please enter at least 2 characters to search', true);
+        } else {
+            removeHighlights();
+            hideSearchFeedback();
         }
     }
+    
+    function highlightMatches(searchTerm) {
+        let matchCount = 0;
+        
+        // Define elements to search in (exclude code, scripts, and interactive elements)
+        const searchableElements = document.querySelectorAll(`
+            .article-title, .article-excerpt, .article-content p,
+            .video-title, .video-desc, .section-description,
+            h1, h2, h3, h4, h5, h6, 
+            p:not(.no-search), 
+            li:not(.no-search),
+            .card-content:not(.no-search) *
+        `);
+        
+        // Elements to exclude from search
+        const excludedSelectors = [
+            'script', 'style', 'code', 'pre', '.no-search',
+            '.search-highlight', '.first-match',
+            'nav', 'footer', '.navbar', '.search-container'
+        ];
+        
+        searchableElements.forEach(element => {
+            // Skip if element is inside excluded container
+            if (element.closest(excludedSelectors.join(', '))) {
+                return;
+            }
+            
+            // Skip if element is empty or only contains whitespace
+            if (!element.textContent || element.textContent.trim().length === 0) {
+                return;
+            }
+            
+            const originalHTML = element.innerHTML;
+            const textContent = element.textContent;
+            const regex = new RegExp(escapeRegExp(searchTerm), 'gi');
+            
+            // Check if element contains the search term
+            if (regex.test(textContent)) {
+                matchCount++;
+                
+                // Create highlighted version
+                const highlightedHTML = originalHTML.replace(
+                    regex,
+                    match => `<span class="search-highlight" data-search-match="true">${match}</span>`
+                );
+                
+                // Only update if content actually changed
+                if (highlightedHTML !== originalHTML) {
+                    element.innerHTML = highlightedHTML;
+                }
+            }
+        });
+        
+        return matchCount;
+    }
+    
+    function removeHighlights() {
+        const highlights = document.querySelectorAll('.search-highlight, .first-match');
+        highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            if (parent) {
+                // Replace highlight with just text content
+                const textNode = document.createTextNode(highlight.textContent);
+                parent.replaceChild(textNode, highlight);
+                
+                // Clean up any empty text nodes
+                parent.normalize();
+            }
+        });
+    }
+    
+    function scrollToFirstMatch(searchTerm) {
+        const firstHighlight = document.querySelector('.search-highlight[data-search-match="true"]');
+        if (firstHighlight) {
+            // Remove any existing first-match classes
+            document.querySelectorAll('.first-match').forEach(el => {
+                el.classList.remove('first-match');
+            });
+            
+            // Add special class to first match
+            firstHighlight.classList.add('first-match');
+            
+            // Scroll to first match
+            setTimeout(() => {
+                firstHighlight.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+    }
+    
+    function showSearchFeedback(message, isError = false) {
+        // Remove existing feedback if any
+        hideSearchFeedback();
+        
+        const feedback = document.createElement('div');
+        feedback.className = `search-feedback ${isError ? 'error' : 'success'}`;
+        feedback.textContent = message;
+        feedback.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 12px 20px;
+            background: ${isError ? '#f8d7da' : '#d1edff'};
+            color: ${isError ? '#721c24' : '#004085'};
+            border: 1px solid ${isError ? '#f5c6cb' : '#b8daff'};
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px;
+        `;
+        
+        document.body.appendChild(feedback);
+        
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            hideSearchFeedback();
+        }, 3000);
+    }
+    
+    function hideSearchFeedback() {
+        const existingFeedback = document.querySelector('.search-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+    }
+    
+    // Helper function to escape regex special characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    // Clear search when input is cleared
+    searchInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+            removeHighlights();
+            hideSearchFeedback();
+        }
+    });
+    
+    // Add CSS for search highlights
+    if (!document.querySelector('#search-styles')) {
+        const searchStyles = document.createElement('style');
+        searchStyles.id = 'search-styles';
+        searchStyles.textContent = `
+            .search-highlight {
+                background-color: #ffeb3b;
+                color: #000;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-weight: bold;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+            
+            .first-match {
+                background-color: #ff9800 !important;
+                color: #000 !important;
+                animation: pulse 2s ease-in-out;
+                box-shadow: 0 2px 8px rgba(255, 152, 0, 0.5);
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .search-feedback {
+                transition: all 0.3s ease;
+            }
+            
+            .search-feedback.success {
+                border-left: 4px solid #28a745;
+            }
+            
+            .search-feedback.error {
+                border-left: 4px solid #dc3545;
+            }
+        `;
+        document.head.appendChild(searchStyles);
+    }
+}
+
+// Add this to your existing smooth scrolling to exclude search highlights
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            // Remove any active search highlights before scrolling
+            removeHighlights();
+            
+            window.scrollTo({
+                top: targetElement.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
     
     // Set initial state for animated elements
     document.querySelectorAll('.video-card, .article-card').forEach(element => {
@@ -285,4 +428,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load articles
     loadArticles();
+
 });
