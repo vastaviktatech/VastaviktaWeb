@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vastavikta - Verify Certificate</title>
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/certificate-search.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo"><span>Vastavikta</span></a>
+            <div class="nav-links">
+                <a href="national.html" class="nav-link">National News</a>
+                <a href="international.html" class="nav-link">International News</a>
+                <a href="magazines.html" class="nav-link">Magazines</a>
+                <a href="certificate-search.html" class="nav-link">Certificates</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-button"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="search-hero">
+        <div class="container">
+            <h1>Verify Certificate <span>Authenticity</span></h1>
+            <p>Enter the certificate ID or serial number to verify its authenticity and view details</p>
+            
+            <!-- Search Box -->
+            <div class="search-box-container">
+                <input type="text" 
+                       class="search-box" 
+                       id="certificate-search" 
+                       placeholder="Enter Certificate ID (e.g., CERT-2024-001)"
+                       autofocus>
+                <div class="search-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Type the certificate ID and press Enter to search
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="search-main">
+        <div class="container">
+            <div class="result-container" id="result-container">
+                <!-- Initial State -->
+                <div class="certificate-result" id="initial-state">
+                    <div class="result-header" style="background: var(--gray-color);">
+                        <i class="fas fa-search" style="color: var(--text-light);"></i>
+                        <h2 style="color: var(--text-light);">Ready to Search</h2>
+                    </div>
+                    <div class="result-body">
+                        <div class="initial-state-content">
+                            <i class="fas fa-arrow-up"></i>
+                            <p>Enter a certificate ID above to verify its authenticity</p>
+                            <p class="example">Example: CERT-2024-001</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-spinner" id="loading-state" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Searching for certificate...</p>
+                </div>
+
+                <!-- Result Found State -->
+                <div class="certificate-result found" id="result-found" style="display: none;"></div>
+
+                <!-- Not Found State -->
+                <div class="certificate-result not-found" id="not-found-state" style="display: none;">
+                    <div class="result-header" style="background: #dc3545; color: white;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Certificate Not Found</h2>
+                    </div>
+                    <div class="result-body">
+                        <div class="not-found-message">
+                            <i class="fas fa-search"></i>
+                            <h3>No matching certificate found</h3>
+                            <p>We couldn't find any certificate with the ID "<span id="searched-id"></span>"</p>
+                            <div class="search-again">
+                                <button class="action-btn verify" onclick="certificateSearch.clearAndSearch()">
+                                    <i class="fas fa-redo-alt"></i> Search Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Searches -->
+            <div class="recent-searches" id="recent-searches" style="display: none;">
+                <h4><i class="fas fa-history"></i> Recent Searches</h4>
+                <div class="recent-tags" id="recent-tags"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal" onclick="certificateSearch.closeImageModal()">&times;</button>
+            <img id="zoomed-image" src="" alt="Certificate">
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDASxEfx3bAlOCt-2qqhnb10EucniGS6Tk",
+            authDomain: "vastavikta-article-db.firebaseapp.com",
+            projectId: "vastavikta-article-db",
+            storageBucket: "vastavikta-article-db.firebasestorage.app",
+            messagingSenderId: "792686025515",
+            appId: "1:792686025515:web:acb55f64fb21472153836e"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- Certificate Search Script -->
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/certificate-search.js"></script>
+</body>
+</html>
